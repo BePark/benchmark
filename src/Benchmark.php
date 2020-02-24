@@ -125,6 +125,7 @@
 
 			if($html)
 			{
+				echo '</table>';
 				die;
 			}
 		}

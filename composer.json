@@ -14,6 +14,9 @@
         "files": [
             "src/Benchmark.php",
             "src/helper.php"
-        ]
+        ],
+        "psr-4": {
+            "Bepark\\Benchmark\\": "src/"
+        }
     }
 }

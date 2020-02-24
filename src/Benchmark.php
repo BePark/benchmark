@@ -82,7 +82,7 @@
 			{
 				if($html)
 				{
-					$headers = '<td>' . $key . '</td>';
+					$headers .= '<td>' . $key . '</td>';
 				}
 				else
 				{

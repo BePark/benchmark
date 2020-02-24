@@ -1,82 +1,93 @@
 <?php
 
-namespace Bepark\Benchmark;
+	namespace Bepark\Benchmark;
 
-class Benchmark
-{
-	/** @var Benchmark|null */
-	protected static $_instance;
-
-	/** @var array */
-	protected $_points;
-
-	public static function getInstance(): Benchmark
+	class Benchmark
 	{
-		if(is_null(self::$_instance)) {
-			self::$_instance = new self;
+		const METHOD_TO_NOT_TRACE = ['benchmark_set_point', 'benchmark_start', 'benchmark_end', 'getInstance'];
 
-			self::$_instance->setPoint('START');
+		/** @var Benchmark|null */
+		protected static $_instance;
+
+		/** @var array */
+		protected $_points;
+
+		public static function getInstance(): Benchmark
+		{
+			if(is_null(self::$_instance)) {
+				self::$_instance = new self;
+
+				self::$_instance->setPoint('START');
+			}
+
+			return self::$_instance;
 		}
 
-		return self::$_instance;
-	}
-
-	/**
-	 * @param string|null $name
-	 * @return $this
-	 */
-	public function setPoint(?string $name = ''): Benchmark
-	{
-		$backTrace = debug_backtrace();
-		$previousBacktrace = $backTrace[1];
-		$pointTime =  microtime(true);
-
-		//If we are coming from the helper method.
-		if($previousBacktrace['function'] == 'benchmark_set_point')
+		/**
+		 * @param string|null $name
+		 * @return $this
+		 */
+		public function setPoint(?string $name = ''): Benchmark
 		{
-			$previousBacktrace = $backTrace[2];
+			$backTrace = debug_backtrace();
+			$previousBacktrace = $backTrace[1];
+			$pointTime =  microtime(true);
+
+			$n = 1;
+			do {
+				$previousBacktrace = $backTrace[$n];
+				$n++;
+			} while(
+				in_array($previousBacktrace['function'], self::METHOD_TO_NOT_TRACE) && $n < 4
+			);
+
+			$lastPoint = empty($this->_points) ? false : end($this->_points);
+			$firsPoint = (isset($this->_points[0]) ? $this->_points[0] : false);
+
+			$file = isset($previousBacktrace['file']) ? $previousBacktrace['file'] : null;
+
+			if(is_null($file) && isset($previousBacktrace['class']))
+			{
+				$file = $previousBacktrace['class'];
+			}
+
+			$this->_points[] = [
+				'file' => $file,
+				'line' => $previousBacktrace['line'] ?? '',
+				'method' => $previousBacktrace['function'],
+				'time' => $pointTime,
+				'time_from_start' => ($firsPoint ? $pointTime - $firsPoint['time'] : 0),
+				'time_from_last_point' => ($lastPoint ? $pointTime - $lastPoint['time'] : 0),
+			];
+
+			return $this;
 		}
 
-		$lastPoint = end($this->_points);
-		$firsPoint = (isset($this->_points[0]) ? $this->_points[0] : false);
-
-		$this->_points[] = [
-			'file' => $previousBacktrace['file'],
-			'line' => $previousBacktrace['line'],
-			'method' => $previousBacktrace['function'],
-			'time' => $pointTime,
-			'time_from_start' => ($lastPoint ? $pointTime - $firsPoint['time'] : 0),
-			'time_from_last_point' => ($lastPoint ? $pointTime - $lastPoint['time'] : 0),
-		];
-
-		return $this;
-	}
-
-	/**
-	 * Render benchmark result. If html is true, it's displayed directly.
-	 * Other it write a file at the root directory.
-	 *
-	 * @param bool $html
-	 */
-	public function render(bool $html = false)
-	{
-		$this->setPoint('END');
-
-		if(empty($this->_points))
+		/**
+		 * Render benchmark result. If html is true, it's displayed directly.
+		 * Other it write a file at the root directory.
+		 *
+		 * @param bool $html
+		 */
+		public function render(bool $html = false)
 		{
-			die('NOT POINT ARE SET');
-		}
+			$this->setPoint('END');
 
-		$headers = '';
+			if(empty($this->_points))
+			{
+				die('NOT POINT ARE SET');
+			}
 
-		foreach($this->_points[0] as $key => $value)
-		{
-		    $headers = ($html ? '<td>' . $key . '</td>' : $key);
-		}
+			$headers = '';
 
-		if($html)
-		{
-			echo '<table>
+			foreach($this->_points[0] as $key => $value)
+			{
+				$headers = ($html ? '<td>' . $key . '</td>' : $key);
+			}
+
+			if($html)
+			{
+				echo '<table>
 				<thead>
 					<tr>
 					'. $headers .'
@@ -84,29 +95,29 @@ class Benchmark
 				</thead>
 		
 			';
-		}
+			}
 
-		$fp = fopen(__DIR__ . '/../../../../benchmark_' . md5(microtime() . '.csv'), 'w+');
-		foreach($this->_points as $point)
-		{
+			$fp = fopen(__DIR__ . '/../../../../benchmark_' . md5(microtime() . '.csv'), 'w+');
+			foreach($this->_points as $point)
+			{
+				if($html)
+				{
+					echo '<tr>';
+					foreach($point as $key => $value)
+					{
+						echo '<td>' . $value . '</td>';
+					}
+					echo '</tr>';
+				}
+				else
+				{
+					fputcsv($fp, $point);
+				}
+			}
+
 			if($html)
 			{
-				echo '<tr>';
-				foreach($point as $key => $value)
-				{
-					echo '<td>' . $value . '</td>';
-				}
-				echo '</tr>';
+				die;
 			}
-			else
-			{
-				fputcsv($fp, $point);
-			}
-		}
-
-		if($html)
-		{
-			die;
 		}
 	}
-}

@@ -56,8 +56,8 @@
 				'line' => $previousBacktrace['line'] ?? '',
 				'method' => $previousBacktrace['function'],
 				'time' => $pointTime,
-				'time_from_start' => ($firsPoint ? $pointTime - $firsPoint['time'] : 0),
-				'time_from_last_point' => ($lastPoint ? $pointTime - $lastPoint['time'] : 0),
+				'time_from_start' => round(($firsPoint ? $pointTime - $firsPoint['time'] : 0),3),
+				'time_from_last_point' => round(($lastPoint ? $pointTime - $lastPoint['time'] : 0), 3),
 			];
 
 			return $this;
@@ -78,11 +78,17 @@
 				die('NOT POINT ARE SET');
 			}
 
-			$headers = '';
-
 			foreach($this->_points[0] as $key => $value)
 			{
-				$headers = ($html ? '<td>' . $key . '</td>' : $key);
+				if($html)
+				{
+					$headers = '<td>' . $key . '</td>';
+				}
+				else
+				{
+					$headers[] = $key;
+				}
+
 			}
 
 			if($html)
@@ -98,6 +104,8 @@
 			}
 
 			$fp = fopen(__DIR__ . '/../../../../benchmark_' . md5(microtime() . '.csv'), 'w+');
+			fputcsv($fp, $headers);
+
 			foreach($this->_points as $point)
 			{
 				if($html)

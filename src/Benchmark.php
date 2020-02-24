@@ -95,7 +95,7 @@ class Benchmark
 
 		if($html)
 		{
-			echo '<table>
+			echo '<table border="1px">
 			<thead>
 				<tr>
 				'. $headers .'

@@ -10,7 +10,7 @@
 
 	if(!function_exists('benchmark_set_point'))
 	{
-		function benchmark_set_point(?string $name)
+		function benchmark_set_point(?string $name = null)
 		{
 			$benchmark = \Bepark\Benchmark::getInstance();
 			$benchmark->setPoint($name);

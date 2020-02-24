@@ -11,12 +11,11 @@
     ],
     "require": {},
     "autoload": {
-        "files": [
-            "src/Benchmark.php",
-            "src/helper.php"
-        ],
         "psr-4": {
             "Bepark\\Benchmark\\": "src/"
-        }
+        },
+        "files": [
+            "src/helper.php"
+        ]
     }
 }

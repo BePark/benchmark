@@ -30,7 +30,6 @@
 		public function setPoint(?string $name = ''): Benchmark
 		{
 			$backTrace = debug_backtrace();
-			$previousBacktrace = $backTrace[1];
 			$pointTime =  microtime(true);
 
 			$n = 1;
@@ -52,6 +51,7 @@
 			}
 
 			$this->_points[] = [
+				'name' => $name,
 				'file' => $file,
 				'line' => $previousBacktrace['line'] ?? '',
 				'method' => $previousBacktrace['function'],

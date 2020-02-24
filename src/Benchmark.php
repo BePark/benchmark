@@ -51,7 +51,7 @@
 			}
 
 			$this->_points[] = [
-				'name' => $name,
+				'name' => 'step ' . count($this->_points) . ' - ' . $name,
 				'file' => $file,
 				'line' => $previousBacktrace['line'] ?? '',
 				'method' => $previousBacktrace['function'],
@@ -103,8 +103,11 @@
 			';
 			}
 
-			$fp = fopen(__DIR__ . '/../../../../benchmark_' . md5(microtime() . '.csv'), 'w+');
-			fputcsv($fp, $headers);
+			if(!$html)
+			{
+				$fp = fopen(__DIR__ . '/../../../../benchmark_' . md5(microtime() . '.csv'), 'w+');
+				fputcsv($fp, $headers);
+			}
 
 			foreach($this->_points as $point)
 			{

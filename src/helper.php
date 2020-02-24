@@ -4,7 +4,7 @@
 	{
 		function benchmark_start()
 		{
-			$benchmark = \Bepark\Benchmark::getInstance();
+			$benchmark = \Bepark\Benchmark\Benchmark::getInstance();
 		}
 	}
 
@@ -12,7 +12,7 @@
 	{
 		function benchmark_set_point(?string $name = null)
 		{
-			$benchmark = \Bepark\Benchmark::getInstance();
+			$benchmark = \Bepark\Benchmark\Benchmark::getInstance();
 			$benchmark->setPoint($name);
 		}
 	}
@@ -21,7 +21,7 @@
 	{
 		function benchmark_end(bool $html = false)
 		{
-			$benchmark = \Bepark\Benchmark::getInstance();
+			$benchmark = \Bepark\Benchmark\Benchmark::getInstance();
 			$benchmark->render($html);
 		}
 	}

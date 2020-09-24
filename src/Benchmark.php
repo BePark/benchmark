@@ -6,6 +6,10 @@ class Benchmark
 {
 	const METHOD_TO_NOT_TRACE = ['benchmark_set_point', 'benchmark_start', 'benchmark_end', 'getInstance'];
 
+	const RENDER_FILE = 'file';
+	const RENDER_HTML = 'html';
+	const RENDER_MAIL = 'mail';
+
 	/** @var Benchmark|null */
 	protected static $_instance;
 
@@ -64,12 +68,13 @@ class Benchmark
 	}
 
 	/**
-	 * Render benchmark result. If html is true, it's displayed directly.
+	 * Render benchmark result.
+	 * RenderWith available are file, html or mail.
 	 * Other it write a file at the root directory.
 	 *
-	 * @param bool $html
+	 * @param string $renderWith
 	 */
-	public function render(bool $html = false)
+	public function render(string $renderWith = 'file')
 	{
 		$this->setPoint('END');
 
@@ -105,15 +110,16 @@ class Benchmark
 		';
 		}
 
-		if(!$html)
+		if($renderWith === self::RENDER_FILE)
 		{
-			$fp = fopen(__DIR__ . '/../../../../benchmark_' . md5(microtime() . '.csv'), 'w+');
+			$fileName = __DIR__ . '/../../../../benchmark_' . md5(microtime()) . '.csv';
+			$fp = fopen($fileName, 'w+');
 			fputcsv($fp, $headers);
 		}
 
 		foreach($this->_points as $point)
 		{
-			if($html)
+			if($renderWith === self::RENDER_HTML)
 			{
 				echo '<tr>';
 				foreach($point as $key => $value)
@@ -128,10 +134,28 @@ class Benchmark
 			}
 		}
 
-		if($html)
+		if($renderWith === self::RENDER_HTML)
 		{
 			echo '</table>';
 			die;
+		}
+
+		if($renderWith === self::RENDER_MAIL)
+		{
+			\ Mail::raw('here are benchmark result', function ($message) use ($fileName) {
+			        $message->from(
+			        	config('mail.from.address'),
+				        config('mail.from.name')
+			        );
+
+			        $message->to(config('mail.default_to'), 'Benchmark guys');
+
+			        $message->subject('Benchmark result on ' . config('app.name'));
+
+			        $message->attach($fileName);
+			    });
+
+			unlink($fileName);
 		}
 	}
 }

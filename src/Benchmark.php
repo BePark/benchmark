@@ -87,7 +87,7 @@ class Benchmark
 
 		foreach($this->_points[0] as $key => $value)
 		{
-			if($html)
+			if($renderWith === self::RENDER_HTML)
 			{
 				$headers .= '<td>' . $key . '</td>';
 			}
@@ -98,7 +98,7 @@ class Benchmark
 
 		}
 
-		if($html)
+		if($renderWith === self::RENDER_HTML)
 		{
 			echo '<table border="1px">
 			<thead>
@@ -110,7 +110,7 @@ class Benchmark
 		';
 		}
 
-		if($renderWith === self::RENDER_FILE)
+		if($renderWith !== self::RENDER_HTML)
 		{
 			$fileName = __DIR__ . '/../../../../benchmark_' . md5(microtime()) . '.csv';
 			$fp = fopen($fileName, 'w+');
@@ -143,17 +143,17 @@ class Benchmark
 		if($renderWith === self::RENDER_MAIL)
 		{
 			\ Mail::raw('here are benchmark result', function ($message) use ($fileName) {
-			        $message->from(
-			        	config('mail.from.address'),
-				        config('mail.from.name')
-			        );
+				$message->from(
+					config('mail.from.address'),
+					config('mail.from.name')
+				);
 
-			        $message->to(config('mail.default_to'), 'Benchmark guys');
+				$message->to(config('mail.default_to'), 'Benchmark guys');
 
-			        $message->subject('Benchmark result on ' . config('app.name'));
+				$message->subject('Benchmark result on ' . config('app.name'));
 
-			        $message->attach($fileName);
-			    });
+				$message->attach($fileName);
+			});
 
 			unlink($fileName);
 		}

@@ -22,6 +22,6 @@
 		function benchmark_end(string $renderWith = 'file')
 		{
 			$benchmark = \Bepark\Benchmark\Benchmark::getInstance();
-			$benchmark->render($html);
+			$benchmark->render($renderWith);
 		}
 	}

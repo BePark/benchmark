@@ -19,7 +19,7 @@
 
 	if(!function_exists('benchmark_end'))
 	{
-		function benchmark_end(bool $html = false)
+		function benchmark_end(string $renderWith = 'file')
 		{
 			$benchmark = \Bepark\Benchmark\Benchmark::getInstance();
 			$benchmark->render($html);

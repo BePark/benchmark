@@ -83,7 +83,7 @@ class Benchmark
 			die('NOT POINT ARE SET');
 		}
 
-		$headers = $html ? '' : [];
+		$headers = ($renderWith === self::RENDER_HTML ? '' : []);
 
 		foreach($this->_points[0] as $key => $value)
 		{

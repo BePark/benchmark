@@ -142,7 +142,7 @@ class Benchmark
 
 		if($renderWith === self::RENDER_MAIL)
 		{
-			\ Mail::raw('here are benchmark result', function ($message) use ($fileName) {
+			\Mail::raw('here are benchmark result', function ($message) use ($fileName) {
 				$message->from(
 					config('mail.from.address'),
 					config('mail.from.name')
